@@ -34,6 +34,10 @@ class HackMD
     self.class.get("/notes", headers: headers)
   end
 
+  def find_note_by_title(title)
+    notes.find {|n| n['title'] == title}
+  end
+
   def create_note(title:, content:, read_permission:, write_permission:, comment_permission: )
     body = {
       title: title,
@@ -63,16 +67,31 @@ class LeanCoffeePublisher
     @created = nil
   end
 
+  def truncate(id)
+    id[0...4] + "****"
+  end
+
   def publish(lean_coffee)
-    @created = hackmd.create_note(
-      title: lean_coffee.event_title,
-      content: lean_coffee.render,
-      read_permission: :guest,
-      write_permission: :guest,
-      comment_permission: :everyone
-    )
+    note = hackmd.find_note_by_title(lean_coffee.event_title)
+
+    if note
+      puts "Found existing note #{truncate(note['id'])}"
+      @created = note
+    else
+      puts "Creating note #{lean_coffee.event_title}"
+      @created = hackmd.create_note(
+        title: lean_coffee.event_title,
+        content: lean_coffee.render,
+        read_permission: :guest,
+        write_permission: :guest,
+        comment_permission: :everyone
+      )
+      puts "Created note #{truncate(@created['id'])}"
+    end
 
     lean_coffee.hackmd_url = created["publishLink"]
+
+    puts "updating note #{truncate(created['id'])}"
 
     hackmd.update_note(
       note_id: @created["id"],
@@ -172,13 +191,20 @@ zoom_link = ENV.fetch("ZOOM_LINK")
 zoom_passcode = ENV.fetch("ZOOM_PASSCODE")
 zoom_meeting_id = ENV.fetch("ZOOM_MEETING_ID")
 
-ll = [
-  LeanCoffee.new(year: 2024, month: 8, zoom_link: zoom_link, zoom_passcode: zoom_passcode, zoom_meeting_id: zoom_meeting_id, rolling_idea_generation_url: rolling_idea_generation_url),
-  LeanCoffee.new(year: 2024, month: 9, zoom_link: zoom_link, zoom_passcode: zoom_passcode, zoom_meeting_id: zoom_meeting_id, rolling_idea_generation_url: rolling_idea_generation_url),
-  LeanCoffee.new(year: 2024, month: 10, zoom_link: zoom_link, zoom_passcode: zoom_passcode, zoom_meeting_id: zoom_meeting_id, rolling_idea_generation_url: rolling_idea_generation_url)
-]
+
+next_three = (1..4).map do |n|
+  today = Date.today
+  n.times { today = today.next_month }
+  today
+end
+
+
+ll = next_three.map do |date|
+  LeanCoffee.new(year: date.year, month: date.month, zoom_link: zoom_link, zoom_passcode: zoom_passcode, zoom_meeting_id: zoom_meeting_id, rolling_idea_generation_url: rolling_idea_generation_url)
+end
 
 p = LeanCoffeePublisher.new(hackmd_client: h)
 ll.each do |l|
+  puts "Publishing: '#{l.event_title}'"
   p.publish(l)
 end
