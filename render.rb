@@ -192,7 +192,7 @@ zoom_passcode = ENV.fetch("ZOOM_PASSCODE")
 zoom_meeting_id = ENV.fetch("ZOOM_MEETING_ID")
 
 
-next_three = (1..4).map do |n|
+next_three = (2..4).map do |n|
   today = Date.today
   n.times { today = today.next_month }
   today

@@ -5,9 +5,11 @@
 # This workflow will download a prebuilt Ruby version, install dependencies and run tests with Rake
 # For more information see: https://github.com/marketplace/actions/setup-ruby-jruby-and-truffleruby
 
-name: Ruby
+name: Publish the next four lean coffee notes
 
 on:
+  schedule:
+    - cron: "1 1 1 * *"
   workflow_dispatch:
 
 permissions:
