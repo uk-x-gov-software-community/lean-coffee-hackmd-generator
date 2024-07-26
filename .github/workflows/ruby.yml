@@ -29,4 +29,11 @@ jobs:
         ruby-version: 3.1
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
     - name: Run
-      run: bundle exec rake
+      run: bundle exec ruby render.rb
+      env: 
+        HACKMD_AUTH_TOKEN: ${{ secrets.HACKMD_AUTH_TOKEN }}
+        ROLLING_IDEA_GENERATION_URL: ${{ secrets.ROLLING_IDEA_GENERATION_URL }}
+        ZOOM_LINK: ${{ secrets.ZOOM_LINK }}
+        ZOOM_PASSCODE: ${{ secrets.ZOOM_PASSCODE }}
+        ZOOM_MEETING_ID: ${{ secrets.ZOOM_MEETING_ID }}
+
