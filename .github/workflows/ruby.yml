@@ -11,6 +11,17 @@ on:
   schedule:
     - cron: "1 1 1 * *"
   workflow_dispatch:
+    inputs:
+      start_range:
+        description: 'Start of the range for notes creation'
+        required: true
+        default: 2
+        type: number
+      end_range:
+        description: 'End of the range for notes creation'
+        required: true
+        default: 4
+        type: number
 
 permissions:
   contents: read
@@ -38,4 +49,6 @@ jobs:
         ZOOM_LINK: ${{ secrets.ZOOM_LINK }}
         ZOOM_PASSCODE: ${{ secrets.ZOOM_PASSCODE }}
         ZOOM_MEETING_ID: ${{ secrets.ZOOM_MEETING_ID }}
+        START_RANGE: ${{ github.event.inputs.start_range }}
+        END_RANGE: ${{ github.event.inputs.end_range }}
 
